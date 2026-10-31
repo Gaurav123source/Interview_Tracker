@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Full Stack Developer Roadmap Tracker</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #687386;
+      --primary: #5b5ce2;
+      --primary-soft: #eeeeff;
+      --green: #159b69;
+      --border: #e5e9f1;
+      --shadow: 0 12px 35px rgba(25, 35, 60, .07);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+    button, input { font: inherit; }
+    .container { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    header {
+      color: white;
+      padding: 44px 0 38px;
+      background: linear-gradient(120deg, #3436a8, #6969ee);
+    }
+    .eyebrow { margin: 0 0 8px; opacity: .8; font-size: .78rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+    h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.15; }
+    .subtitle { margin: 12px 0 0; max-width: 680px; color: #e6e7ff; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .pill { padding: 7px 12px; border: 1px solid rgba(255,255,255,.25); border-radius: 99px; font-size: .85rem; background: rgba(255,255,255,.1); }
+    main { padding: 28px 0 56px; }
+    .overview {
+      display: grid; grid-template-columns: 1.3fr repeat(3, 1fr); gap: 14px; margin-top: -54px; position: relative;
+    }
+    .stat, .progress-card, .phase-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow);
+    }
+    .stat { padding: 18px; }
+    .stat-label { color: var(--muted); font-size: .82rem; }
+    .stat-value { display: block; font-size: 1.8rem; font-weight: 800; margin-top: 3px; }
+    .progress-card { padding: 20px; margin: 18px 0 26px; }
+    .progress-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+    .progress-head h2 { margin: 0; font-size: 1.05rem; }
+    .percent { font-weight: 800; color: var(--primary); font-size: 1.2rem; }
+    .track { height: 11px; background: #eceef5; border-radius: 20px; overflow: hidden; }
+    .fill { height: 100%; width: 0; background: linear-gradient(90deg, #5b5ce2, #21b889); border-radius: inherit; transition: width .25s ease; }
+    .progress-note { margin: 10px 0 0; color: var(--muted); font-size: .85rem; }
+    .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin: 30px 0 14px; }
+    .section-heading h2 { margin: 0; font-size: 1.35rem; }
+    .section-heading p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn { border: 0; border-radius: 9px; padding: 9px 13px; cursor: pointer; font-weight: 650; }
+    .btn-primary { color: white; background: var(--primary); }
+    .btn-light { color: var(--text); background: white; border: 1px solid var(--border); }
+    .phase-list { display: grid; gap: 14px; }
+    .phase-card { overflow: hidden; box-shadow: 0 5px 18px rgba(25,35,60,.04); }
+    .phase-top { padding: 17px 19px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+    .phase-number {
+      flex: 0 0 42px; height: 42px; display: grid; place-items: center; border-radius: 12px;
+      background: var(--primary-soft); color: var(--primary); font-weight: 800;
+    }
+    .phase-info { flex: 1; min-width: 0; }
+    .phase-info h3 { margin: 0; font-size: 1rem; }
+    .phase-info p { margin: 3px 0 0; color: var(--muted); font-size: .82rem; }
+    .phase-progress { min-width: 82px; text-align: right; color: var(--muted); font-size: .82rem; }
+    .chevron { color: var(--muted); transition: transform .2s; }
+    .phase-card.open .chevron { transform: rotate(180deg); }
+    .phase-body { display: none; padding: 0 19px 18px 75px; }
+    .phase-card.open .phase-body { display: block; }
+    .topic-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 18px; }
+    .topic {
+      display: flex; align-items: flex-start; gap: 9px; padding: 8px 9px; border-radius: 9px;
+      background: #fafbfe; border: 1px solid #edf0f6; cursor: pointer; font-size: .9rem;
+    }
+    .topic input { accent-color: var(--green); margin-top: 4px; width: 16px; height: 16px; flex: 0 0 auto; }
+    .topic-number { color: var(--primary); font-weight: 800; font-size: .82rem; min-width: 25px; }
+    .topic.done span:not(.topic-number) { color: #778194; text-decoration: line-through; }
+    .topic.done .topic-number { color: var(--green); }
+    .phase-footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 15px; color: var(--muted); font-size: .82rem; }
+    .tips { margin-top: 28px; padding: 20px; border-radius: 15px; background: #eef1ff; border: 1px solid #dfe2ff; }
+    .tips h3 { margin: 0 0 8px; }
+    .tips ul { margin: 0; padding-left: 20px; color: #46506a; }
+    footer { padding: 22px 0 35px; color: var(--muted); text-align: center; font-size: .82rem; }
+    @media (max-width: 760px) {
+      .overview { grid-template-columns: repeat(2, 1fr); }
+      .overview .stat:first-child { grid-column: span 2; }
+      .section-heading { align-items: start; flex-direction: column; }
+      .phase-body { padding-left: 19px; }
+    }
+    @media (max-width: 520px) {
+      .container { width: min(100% - 22px, 1120px); }
+      header { padding: 34px 0 62px; }
+      .overview { margin-top: -43px; gap: 9px; }
+      .stat { padding: 14px; }
+      .stat-value { font-size: 1.45rem; }
+      .topic-list { grid-template-columns: 1fr; }
+      .phase-top { padding: 14px; gap: 10px; }
+      .phase-progress { min-width: 55px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <p class="eyebrow">Your learning workspace</p>
+      <h1>Full Stack Developer Roadmap</h1>
+      <p class="subtitle">HTML se lekar React, Node.js, MongoDB, GitHub aur deployment tak — apni preparation ko step by step track karo.</p>
+      <div class="header-meta">
+        <span class="pill">100-day suggested plan</span>
+        <span class="pill">MERN Stack</span>
+        <span class="pill">Beginner to interview-ready</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="overview" aria-label="Overall statistics">
+      <div class="stat"><span class="stat-label">Overall completion</span><strong class="stat-value" id="overallStat">0%</strong></div>
+      <div class="stat"><span class="stat-label">Topics completed</span><strong class="stat-value" id="doneStat">0</strong></div>
+      <div class="stat"><span class="stat-label">Total topics</span><strong class="stat-value" id="totalStat">0</strong></div>
+      <div class="stat"><span class="stat-label">Phases completed</span><strong class="stat-value" id="phaseStat">0/8</strong></div>
+    </section>
+
+    <section class="progress-card">
+      <div class="progress-head">
+        <h2>Overall roadmap progress</h2>
+        <span class="percent" id="overallPercent">0%</span>
+      </div>
+      <div class="track"><div class="fill" id="overallBar"></div></div>
+      <p class="progress-note" id="progressNote">Start with HTML. Tick a topic when you can explain and practise it yourself.</p>
+    </section>
+
+    <div class="section-heading">
+      <div>
+        <h2>Your learning checklist</h2>
+        <p>Phase open karo aur complete topics ko tick karte jao. Progress automatically save hogi.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-light" id="expandBtn" type="button">Expand all</button>
+        <button class="btn btn-light" id="collapseBtn" type="button">Collapse all</button>
+        <button class="btn btn-light" id="resetBtn" type="button">Reset progress</button>
+      </div>
+    </div>
+
+    <section class="phase-list" id="phaseList"></section>
+
+    <section class="tips">
+      <h3>How to use this tracker</h3>
+      <ul>
+        <li>Topic tabhi tick karo jab concept samajh aa jaye aur tum khud code likh sako.</li>
+        <li>Har project ko GitHub par push karo aur README file add karo.</li>
+        <li>Har week revision aur ek chhota self-test zaroor do.</li>
+        <li>Progress isi browser mein automatically save hoti hai (localStorage).</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- <footer><div class="container">Keep building. Keep practising. Your progress is saved in this browser.</div></footer> -->
+
+  <script>
+    const roadmap = [
+      {
+        title: "HTML", days: "Day 1–7", description: "Website structure and forms",
+        topics: ["HTML document structure", "Tags, elements and attributes", "Headings, paragraphs and text formatting", "Links and images", "Ordered and unordered lists", "HTML tables", "Forms and input types", "Form validation", "Semantic HTML", "Audio, video and iframe", "Meta tags and basic SEO"]
+      },
+      {
+        title: "CSS + Bootstrap", days: "Day 8–20", description: "Styling and responsive layouts",
+        topics: ["Inline, internal and external CSS", "Selectors and combinators", "Colors, backgrounds and typography", "Margin, padding and box model", "Borders, width and height", "Display and position properties", "Flexbox", "CSS Grid", "Pseudo classes and elements", "Specificity and inheritance", "Media queries and responsive design", "Units: px, %, rem, em, vh, vw", "Transitions, transforms and animations", "Bootstrap setup and containers", "Bootstrap grid, navbar, cards and forms"]
+      },
+      {
+        title: "Git & GitHub", days: "Day 21–24", description: "Version control and code portfolio",
+        topics: ["Install Git and configure username/email", "git init, status and add", "git commit and git log", "Create a GitHub account and repository", "Push a local project to GitHub", "git clone, pull and fetch", "Branches and merge", "Resolve merge conflicts", "Create README.md files", ".gitignore and repository hygiene"]
+      },
+      {
+        title: "JavaScript", days: "Day 25–45", description: "Core programming and browser logic",
+        topics: ["Variables: var, let and const", "Data types and type conversion", "Operators and conditions", "Loops", "Functions and arrow functions", "Arrays and objects", "String and array methods", "DOM selection and manipulation", "Events and event listeners", "Form handling and validation", "Scope and hoisting", "Closures and callbacks", "this, call, apply and bind", "Destructuring, spread and rest", "map, filter and reduce", "Promises and async/await", "Fetch API and JSON", "Event loop and execution context", "Error handling with try/catch", "ES modules, Map and Set", "Solve 70–100 coding exercises"]
+      },
+      {
+        title: "React.js", days: "Day 46–62", description: "Build modern frontend applications",
+        topics: ["React introduction and Vite setup", "JSX and components", "Props and component composition", "useState", "Events and conditional rendering", "Lists and keys", "useEffect and dependency array", "React Router and nested routes", "Forms and validation", "Fetch API and Axios", "useContext and Context API", "useRef and useReducer", "useMemo and useCallback", "Custom hooks", "Redux Toolkit basics", "Protected routes and authentication UI", "Re-rendering and performance basics", "Build a React CRUD project"]
+      },
+      {
+        title: "Node.js + Express.js", days: "Day 63–77", description: "Backend, REST APIs and security",
+        topics: ["Node.js and V8 introduction", "Node architecture and event loop", "Modules: CommonJS and ES Modules", "npm, npx and package.json", "Create a Node.js server", "Express setup and routing", "Request, response and status codes", "Route params, query params and request body", "Middleware and custom middleware", "REST API and CRUD operations", "MVC folder structure", "Centralized error handling", "Environment variables and dotenv", "JWT authentication", "bcrypt password hashing", "Authentication vs authorization", "Cookies, sessions and refresh-token basics", "CORS, validation and rate limiting", "Multer and file upload basics"]
+      },
+      {
+        title: "MongoDB + Mongoose", days: "Day 78–85", description: "Database design and queries",
+        topics: ["SQL vs NoSQL", "MongoDB Atlas setup", "Database, collection and document", "Insert, find, update and delete", "Query operators and filtering", "Sorting and pagination", "Mongoose connection", "Schemas, models and validation", "Relationships and populate()", "Embedded vs referenced documents", "Aggregation pipeline basics", "Indexes and performance basics"]
+      },
+      {
+        title: "Full Stack Projects + Deployment", days: "Day 86–100+", description: "Portfolio-ready applications",
+        topics: ["Plan Employee Management System", "Build React employee dashboard", "Create employee CRUD APIs", "Connect MongoDB and React", "Add JWT login and role-based access", "Test APIs using Postman", "Build E-commerce product and cart flow", "Add orders and admin management", "Create Task Management project", "Use Git branches and meaningful commits", "Write project README and add screenshots", "Deploy frontend to Vercel or Netlify", "Deploy backend to Render or another host", "Configure MongoDB Atlas and environment variables", "Test live application and fix issues", "Prepare project explanation for interviews"]
+      }
+    ];
+
+    const STORAGE_KEY = "mernRoadmapProgress_v1";
+    let completed = {};
+    try { completed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+    catch { completed = {}; }
+
+    const phaseList = document.getElementById("phaseList");
+
+    function topicId(phaseIndex, topicIndex) {
+      return `${phaseIndex}-${topicIndex}`;
+    }
+
+    function saveProgress() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+    }
+
+    function renderRoadmap() {
+      phaseList.innerHTML = "";
+      roadmap.forEach((phase, phaseIndex) => {
+        const phaseDone = phase.topics.filter((_, topicIndex) => completed[topicId(phaseIndex, topicIndex)]).length;
+        const card = document.createElement("article");
+        card.className = "phase-card" + (phaseIndex === 0 ? " open" : "");
+        card.innerHTML = `
+          <div class="phase-top" role="button" tabindex="0" aria-expanded="${phaseIndex === 0}">
+            <div class="phase-number">${String(phaseIndex + 1).padStart(2, "0")}</div>
+            <div class="phase-info">
+              <h3>${phase.title}</h3>
+              <p>${phase.days} · ${phase.description}</p>
+            </div>
+            <div class="phase-progress"><strong>${phaseDone}/${phase.topics.length}</strong><br>completed</div>
+            <span class="chevron">⌄</span>
+          </div>
+          <div class="phase-body">
+            <div class="topic-list">
+              ${phase.topics.map((topic, topicIndex) => {
+                const id = topicId(phaseIndex, topicIndex);
+                const isDone = !!completed[id];
+                return `<label class="topic ${isDone ? "done" : ""}">
+                  <input type="checkbox" data-id="${id}" ${isDone ? "checked" : ""}>
+                  <span class="topic-number">${String(topicIndex + 1).padStart(2, "0")}.</span>
+                  <span>${topic}</span>
+                </label>`;
+              }).join("")}
+            </div>
+            <div class="phase-footer">
+              <span>${Math.round((phaseDone / phase.topics.length) * 100)}% phase completed</span>
+              <span>${phase.topics.length - phaseDone} topics remaining</span>
+            </div>
+          </div>`;
+        const top = card.querySelector(".phase-top");
+        const toggle = () => {
+          card.classList.toggle("open");
+          top.setAttribute("aria-expanded", card.classList.contains("open"));
+        };
+        top.addEventListener("click", toggle);
+        top.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggle(); }
+        });
+        card.querySelectorAll('input[type="checkbox"]').forEach(input => {
+          input.addEventListener("change", () => {
+            completed[input.dataset.id] = input.checked;
+            if (!input.checked) delete completed[input.dataset.id];
+            saveProgress();
+            renderRoadmap();
+            updateStats();
+            const updatedCard = phaseList.children[phaseIndex];
+            updatedCard.classList.add("open");
+          });
+        });
+        phaseList.appendChild(card);
+      });
+    }
+
+    function updateStats() {
+      const total = roadmap.reduce((sum, phase) => sum + phase.topics.length, 0);
+      const done = Object.keys(completed).filter(key => completed[key]).length;
+      const percent = Math.round((done / total) * 100);
+      const phasesDone = roadmap.filter((phase, phaseIndex) =>
+        phase.topics.every((_, topicIndex) => completed[topicId(phaseIndex, topicIndex)])
+      ).length;
+      document.getElementById("overallStat").textContent = `${percent}%`;
+      document.getElementById("overallPercent").textContent = `${percent}%`;
+      document.getElementById("overallBar").style.width = `${percent}%`;
+      document.getElementById("doneStat").textContent = done;
+      document.getElementById("totalStat").textContent = total;
+      document.getElementById("phaseStat").textContent = `${phasesDone}/8`;
+      document.getElementById("progressNote").textContent =
+        percent === 100 ? "Amazing! You have completed every roadmap topic. Keep revising and building." :
+        `${total - done} topics left. Complete each topic with hands-on practice before ticking it off.`;
+    }
+
+    document.getElementById("expandBtn").addEventListener("click", () => {
+      document.querySelectorAll(".phase-card").forEach(card => {
+        card.classList.add("open");
+        card.querySelector(".phase-top").setAttribute("aria-expanded", "true");
+      });
+    });
+    document.getElementById("collapseBtn").addEventListener("click", () => {
+      document.querySelectorAll(".phase-card").forEach(card => {
+        card.classList.remove("open");
+        card.querySelector(".phase-top").setAttribute("aria-expanded", "false");
+      });
+    });
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (confirm("Are you sure you want to reset all your roadmap progress?")) {
+        completed = {};
+        saveProgress();
+        renderRoadmap();
+        updateStats();
+      }
+    });
+
+    renderRoadmap();
+    updateStats();
+  </script>
+</body>
+</html>
